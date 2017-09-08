@@ -1,0 +1,20 @@
+MAKEFLAGS += --no-print-directory
+
+_CC=gcc
+_CXX=g++
+_AR=ar
+_LD=ld
+V=0
+
+ifeq ($(V), 1)
+	export CC=$(_CC)
+	export CXX=$(_CXX)
+	export AR=$(_AR)
+	export LD=$(_LD)
+else
+	export CC=@echo "[GCC]		$$@"; $(_CC)
+	export CXX=@echo "[G++]		$$@"; $(_CXX)
+	export AR=@echo "[AR]		$$@"; $(_AR)
+	export LD=@echo "[LD]		$$@"; $(_LD)
+	export AT=@
+endif

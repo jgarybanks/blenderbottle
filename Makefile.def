@@ -1,0 +1,8 @@
+LIB_BB_VER=$(shell git log -1 --pretty=format:"%h")
+
+PRODNAME=bb
+OPTIONS=-D_JGB=1
+CDEBUG=-g
+CFLAGS += -fPIC -Werror -Wall -std=gnu99 $(OPTIONS) $(CDEBUG) 
+
+export LIB_BB_VER CFLAGS PRODNAME

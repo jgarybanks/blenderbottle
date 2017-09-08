@@ -1,0 +1,15 @@
+CFLAGS=
+LDFLAGS=
+
+all:
+	@test -f gc-inst/lib/libgc.so.1 || echo "[CONFIGURE GC]"
+	@test -f gc-inst/lib/libgc.so.1 || ./configure --prefix=`pwd`/gc-inst >& configure.out]
+	@test -f gc-inst/lib/libgc.so.1 || echo "[GARBAGE COLLECTOR]"
+	@test -f gc-inst/lib/libgc.so.1 || $(MAKE) all distclean >& make.log]
+	@cp Makefile.real Makefile
+
+clean:
+	@/bin/true
+
+install:
+	@/bin/true
