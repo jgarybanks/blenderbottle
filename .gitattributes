@@ -10,4 +10,4 @@
 # Note: "core.eol" configuration variable controls which line endings to use
 # for the normalized files in the working directory (the default is native).
 
-/conf.h ident
+*.h ident
