@@ -25,16 +25,14 @@ set_tz(int tz_offset_hr, int tz_offset_min, int tz_daylight)
 	int i;
 	int number_of_zones;
 
-	struct ZI
-	{
+	struct ZI {
 		int hour_offset;
 		int minute_offset;
 		char *st;
 		char *dt;
 	};
 
-	struct ZI zone_info[] =
-	{
+	struct ZI zone_info[] = {
 		{ 4,  0, "AST", "ADT"},
 		{ 5,  0, "EST", "EDT"},
 		{ 6,  0, "CST", "CDT"},
@@ -50,8 +48,7 @@ set_tz(int tz_offset_hr, int tz_offset_min, int tz_daylight)
 
 	number_of_zones = sizeof(zone_info)/sizeof(struct ZI);
 
-	for (i = 0; i < number_of_zones; i++)
-	{
+	for (i = 0; i < number_of_zones; i++) {
 		if (zone_info[i].hour_offset == tz_offset_hr &&
 				zone_info[i].minute_offset == tz_offset_min) {
 			break;
@@ -65,15 +62,17 @@ set_tz(int tz_offset_hr, int tz_offset_min, int tz_daylight)
 		i = 2;
 	}
 
-	if (tz_offset_min == 0)
+	if (tz_offset_min == 0) {
 		strcpy(tz_offset_min_string, "");
-	else
+	} else {
 		sprintf(tz_offset_min_string, ":%d", tz_offset_min);
+	}
 
-	if (tz_daylight == 0)
+	if (tz_daylight == 0) {
 		strcpy(tz_daylight_str, "");
-	else
+	} else {
 		sprintf(tz_daylight_str, "%s", zone_info[i].dt);
+	}
 
 	sprintf(tz_set_string, "TZ=%s%d%s%s",
 		zone_info[i].st,
@@ -91,10 +90,11 @@ set_tz(int tz_offset_hr, int tz_offset_min, int tz_daylight)
 int
 reset_tz()
 {
-	if (putenv(tz_save) == 0)
+	if (putenv(tz_save) == 0) {
 		return 1;
-	else
+	} else {
 		return 0;
+	}
 }
 
 time_t
@@ -119,8 +119,7 @@ set_datetime(struct datetime idt)
 	tm.tm_hour = 0;
 	tm.tm_min = 0;
 	tm.tm_sec = 0;
-	if (time > 9999)
-	{
+	if (time > 9999) {
 		tm.tm_sec = time % 100;
 		time = time / 100;
 	}
@@ -143,31 +142,26 @@ set_yyyymmdd_datetime(char *dt)
 	int len;
 	char datetime[16];
 
-	if ((len = strlen(dt)) != 8 && len != 13 && len != 15)
+	if ((len = strlen(dt)) != 8 && len != 13 && len != 15) {
 		return (time_t)-1; // incorrect date format
+	}
 	strcpy(datetime, dt);
 
 	memset((char *)&tm, 0, sizeof(tm));
 	tm.tm_isdst = -1; // let it decide about Daylight Savings Time
 
-	if (len > 8)
-	{
-		if (len == 15)
-		{
+	if (len > 8) {
+		if (len == 15) {
 			tm.tm_sec = atoi(dt+13);
 			datetime[13] = '\0';
-		}
-		else
-		{
+		} else {
 			tm.tm_sec = 0;
 		}
 		tm.tm_min = atoi(datetime + 11);
 		datetime[11] = '\0';
 		tm.tm_hour = atoi(datetime + 9);
 		datetime[8] = '\0';
-	}
-	else
-	{
+	} else {
 		tm.tm_hour = 0;
 		tm.tm_min = 0;
 		tm.tm_sec = 0;
