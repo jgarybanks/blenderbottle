@@ -6,6 +6,7 @@ import getopt
 import pymongo import MongoClient
 import time
 import collections
+import dispatch
 
 BB_DATA = 1
 BB_MDATA = 2
@@ -33,13 +34,11 @@ def GetChunk(myHosts = [], id)
     c = Conn(db, chunk)
     return c
 
-def main():
-  try:
-    opts, args = getopt.getopt(
-      sys.args[1:], 'r:i:f:',
-      ['remotehost=', 'id=', 'filename='])
-  except getopt.error, msg:
-    fatal(msg)
+def apply(sender, **kwargs):
+
+  remotehost = kwargs['remotehost']
+  filename = kwargs['filename']
+  id = kwargs['id']
 
   #
   # We've either gone fatal here or this will return a value. No need 
@@ -57,8 +56,8 @@ def main():
     if chunk['dtype'] == BB_DATA:
       f.write(chunk['fdata'])
     elif chunk['dtype'] == BB_MDATA:
-      '' Does python3 require 0oNNN or does simple 0NNNN suffice?
-      '' Do we want lchown, lchmod, etc?
+      # Does python3 require 0oNNN or does simple 0NNNN suffice?
+      # Do we want lchown, lchmod, etc?
       os.chmod(filename, chunk['fperms'])
       os.chown(filename, chunk['fuid'], chunk['fgid'])
       os.truncate(filename, chunk['fsize'])
@@ -87,3 +86,17 @@ def main():
          complain("Can't symlink " + filename + " and " + chunk['linkname'])
      else
        complain("Unknown operation " + chunk['dtype']
+
+
+def main():
+  
+  harken = dispatch.Signal(providing_args=['id', 'remotehost', 'filename'])
+  harken.connect(apply);
+
+  while (1):
+    time.sleep(0.05);
+
+if __name__ == '__main__':
+  main()
+  sys.exit(0)
+
