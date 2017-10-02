@@ -1,6 +1,0 @@
-class BB:
-  BB_DATA = 1
-  BB_MDATA = 2
-  BB_RENAME = 3
-  BB_UNLINK = 4
-  BB_SYMLINK = 5

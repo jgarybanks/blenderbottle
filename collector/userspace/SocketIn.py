@@ -2,13 +2,19 @@ import sys
 import socket
 import SocketServer
 import threading
+import paho.mqtt.client as mqtt
 import BBPy
 
 class MessageHandler(SocketServer.BaseRequestHandler):
+  def Publish(id)
+    # Just send it to the broker on our local host
+    single("bb/fsevent", payload=id)
+    
   def handle(self):
     data = self.request.recv(4096)
-    print "I need to put " + data + " into mongo"
-    self.request.close()
+    id = BBStore(data)
+    Publish(id)
+    # self.request.close()
 
 class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
   daemon_threads = True

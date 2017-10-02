@@ -5,20 +5,11 @@ import string
 import getopt
 import pymongo import MongoClient
 import time
-import collections
-import dispatch
 import BBPy
 
 class BBDestination:
 
-def fatal(msg):
-  print msg + "\n"
-  sys.exit(1)
-
-def complain(msg):
-  print msg + "\n"
-
-def GetChunk(myHosts = [], id)
+def OpenDb(myHosts = [], id)
   for host in myHosts:
     try:
       client = MongoClient(host, 27017)
@@ -30,59 +21,51 @@ def GetChunk(myHosts = [], id)
     if chunk == '':
       fatal("Unable to find " + id + " in any of " + ','.join(myHosts)
 
-    Conn = collections.namedtuple('DbConn', ['db', 'chunk'])
-    c = Conn(db, chunk)
-    return c
+    return db
 
-def Apply(sender, **kwargs):
-
-  remotehost = kwargs['remotehost']
-  filename = kwargs['filename']
-  id = kwargs['id']
+def Apply(client, userdata, message)
 
   #
   # We've either gone fatal here or this will return a value. No need 
   # to try and catch an exception
   #
-  c = GetChunk("localhost", remotehost, id);
+  remotehost = client.payload
+  id = str(message.payload)
+  db = OpenDb("localhost", remotehost, id)
   
-  #
-  # In the "real world" these would be applied in threads
-  #
-
-  f = io.open(filename, 'rw')
-
-  for chunk in c.db.chunks.find({"filename": ObjectId(filename)}).sort("mtime"):
+  for chunk in db.chunks.find({"_id": ObjectId(id)).sort("mtime"):
     if chunk['dtype'] == BB.BB_DATA:
-      f.write(chunk['fdata'])
+      f = io.open(filename, rw)
+      os.lseek(f, chunk['fpos'], 0)
+      os.write(f, chunk['fdata'])
     elif chunk['dtype'] == BB.BB_MDATA:
       # Does python3 require 0oNNN or does simple 0NNNN suffice?
       # Do we want lchown, lchmod, etc?
-      os.chmod(filename, chunk['fperms'])
-      os.chown(filename, chunk['fuid'], chunk['fgid'])
-      os.truncate(filename, chunk['fsize'])
+      os.chmod(chunk['filename'], chunk['fperms'])
+      os.chown(chunk['filename'], chunk['fuid'], chunk['fgid'])
+      os.truncate(chunk['filename'], chunk['fsize'])
     elsif chunk['dtype'] == BB.BB_RENAME:
       try:
-        shutil.move(filename, chunk['newname'])
+        shutil.move(chunk['filename'], chunk['newname'])
         os.chmod(chunk['newname'], chunk['fperms'])
         os.chown(chunk['newname'], chunk['fuid'], chunk['fgid'])
       except:
         fatal("Can't unlink " + chunk['newname'])
      elsif chunk['dtype'] == BB.BB_UNLINK:
-       if S_ISDIR(os.stat(filename).st_mode):
+       if S_ISDIR(os.stat(chunk['filename']).st_mode):
          try:
-           shutil.rmtree(filename)
+           shutil.rmtree(chunk['filename'])
          except:
-           fatal("Can't rmtree " + filename);
+           fatal("Can't rmtree " + chunk['filename']);
        else:
          try:
-           os.unlink(filename)
+           os.unlink(chunk['filename'])
          except:
-           fatal("Can't unlink " + filename);
+           fatal("Can't unlink " + chunk'filename']);
      elsif chunk['dtype'] == BB.BB_SYMLINK:
        try:
-         os.symlink(filename, chunk['linkname'])
+         os.symlink(chunk['filename'], chunk['linkname'])
        except:
-         complain("Can't symlink " + filename + " and " + chunk['linkname'])
+         complain("Can't symlink " + chunk['filename'] + " and " + chunk['linkname'])
      else
        complain("Unknown operation " + chunk['dtype']
