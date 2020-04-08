@@ -1,3 +1,5 @@
+This is *EXTREMELY* a work in progress. More accurately, I started it and kinda dropped it for lack of time. It's definitely something I plan on picking back up though, and the design below should be taken with a grain of sald (add Kafka, mq, etc).
+
 aggregator - code to collect data in real time
 collector - code to collect the data from the aggregators, or from other
             sources. Has a persistent data store, and provides metadata
